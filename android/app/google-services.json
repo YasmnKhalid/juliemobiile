@@ -1,0 +1,90 @@
+{
+  "project_info": {
+    "project_number": "732470815723",
+    "project_id": "julie-lq5xdo",
+    "storage_bucket": "julie-lq5xdo.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:732470815723:android:607bfb709f9fb615a2c7ae",
+        "android_client_info": {
+          "package_name": "com.example.juliemobiile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "732470815723-8beupqt4e0fcf2ns3djj8jjku90ue1kd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0xmV5zUFOm5K_WgaImuGbC_VwGI7JZEI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "732470815723-8beupqt4e0fcf2ns3djj8jjku90ue1kd.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "732470815723-a02u64gafducgsnfvnmci2uav6f1sb9n.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.mycompany.julie"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:732470815723:android:bb7746b00d6f21baa2c7ae",
+        "android_client_info": {
+          "package_name": "com.fyp.juliemobiile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "732470815723-vucsdj6b26qebk7gsrmlhoabgdncsq91.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fyp.juliemobiile",
+            "certificate_hash": "91afdfa13bffa25b70ee8fd2568a258d9ac64b0e"
+          }
+        },
+        {
+          "client_id": "732470815723-8beupqt4e0fcf2ns3djj8jjku90ue1kd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0xmV5zUFOm5K_WgaImuGbC_VwGI7JZEI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "732470815723-8beupqt4e0fcf2ns3djj8jjku90ue1kd.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "732470815723-a02u64gafducgsnfvnmci2uav6f1sb9n.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.mycompany.julie"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
