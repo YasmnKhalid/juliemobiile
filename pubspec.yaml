@@ -18,6 +18,8 @@ dependencies:
   google_fonts: ^5.0.0
   share_plus: ^10.1.2
   salomon_bottom_bar: ^3.3.2
+  image_picker: ^1.1.2
+  firebase_storage: ^12.3.7
   
 
 dev_dependencies:
