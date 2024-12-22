@@ -81,7 +81,10 @@ class _ForumPageState extends State<ForumPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment
+                                    .center, // Align vertically at the center
+                                mainAxisAlignment: MainAxisAlignment
+                                    .spaceBetween, // Spread items horizontally
                                 children: [
                                   Expanded(
                                     child: RichText(
@@ -111,76 +114,58 @@ class _ForumPageState extends State<ForumPage> {
                                       ),
                                     ),
                                   ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 8.0),
-                                    child: PopupMenuButton<String>(
-                                      icon: const Icon(Icons.more_horiz,
-                                          color: Color(0xFF624E88)),
-                                      onSelected: (value) async {
-                                        if (value == 'delete') {
-                                          // Check if the current user owns the post
-                                          if (data['userId'] ==
-                                              FirebaseAuth
-                                                  .instance.currentUser?.uid) {
-                                            try {
-                                              await FirebaseFirestore.instance
-                                                  .collection('forum_posts')
-                                                  .doc(post.id)
-                                                  .delete();
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                const SnackBar(
-                                                    content: Text(
-                                                        'Post deleted successfully.')),
-                                              );
-                                            } catch (e) {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                SnackBar(
-                                                    content: Text(
-                                                        'Error deleting post: $e')),
-                                              );
-                                            }
-                                          } else {
+                                  PopupMenuButton<String>(
+                                    icon: const Icon(Icons.more_horiz,
+                                        color: Color(0xFF624E88)),
+                                    onSelected: (value) async {
+                                      if (value == 'delete') {
+                                        // Check if the current user owns the post
+                                        if (data['userId'] ==
+                                            FirebaseAuth
+                                                .instance.currentUser?.uid) {
+                                          try {
+                                            await FirebaseFirestore.instance
+                                                .collection('forum_posts')
+                                                .doc(post.id)
+                                                .delete();
                                             ScaffoldMessenger.of(context)
                                                 .showSnackBar(
                                               const SnackBar(
                                                   content: Text(
-                                                      'You can only delete your own posts.')),
+                                                      'Post deleted successfully.')),
+                                            );
+                                          } catch (e) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                  content: Text(
+                                                      'Error deleting post: $e')),
                                             );
                                           }
-                                        } else if (value == 'hide') {
-                                          // Hide the post locally (this can be implemented as needed)
+                                        } else {
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
                                             const SnackBar(
-                                                content: Text('Post hidden.')),
-                                          );
-                                        } else if (value == 'report') {
-                                          // Placeholder for report logic
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            const SnackBar(
-                                                content:
-                                                    Text('Post reported.')),
+                                                content: Text(
+                                                    'You can only delete your own posts.')),
                                           );
                                         }
-                                      },
-                                      itemBuilder: (BuildContext context) => [
-                                        const PopupMenuItem(
-                                          value: 'delete',
-                                          child: Text('Delete'),
-                                        ),
-                                        const PopupMenuItem(
-                                          value: 'hide',
-                                          child: Text('Hide'),
-                                        ),
-                                        const PopupMenuItem(
-                                          value: 'report',
-                                          child: Text('Report'),
-                                        ),
-                                      ],
-                                    ),
+                                      }
+                                    },
+                                    itemBuilder: (BuildContext context) => [
+                                      const PopupMenuItem(
+                                        value: 'delete',
+                                        child: Text('Delete'),
+                                      ),
+                                      const PopupMenuItem(
+                                        value: 'hide',
+                                        child: Text('Hide'),
+                                      ),
+                                      const PopupMenuItem(
+                                        value: 'report',
+                                        child: Text('Report'),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
@@ -375,7 +360,7 @@ class _ForumPageState extends State<ForumPage> {
 
 class _AvatarImage extends StatelessWidget {
   final String? url;
-  const _AvatarImage(this.url, {super.key});
+  const _AvatarImage(this.url);
 
   @override
   Widget build(BuildContext context) {
@@ -397,7 +382,6 @@ class _ActionsRow extends StatelessWidget {
   final Map<String, dynamic> data;
 
   const _ActionsRow({
-    super.key,
     required this.postId,
     required this.data,
   });
@@ -411,7 +395,7 @@ class _ActionsRow extends StatelessWidget {
         iconTheme: const IconThemeData(color: Color(0xFF624E88), size: 18),
         textButtonTheme: TextButtonThemeData(
           style: ButtonStyle(
-            foregroundColor: MaterialStateProperty.all(Color(0xFF624E88)),
+            foregroundColor: WidgetStateProperty.all(Color(0xFF624E88)),
           ),
         ),
       ),
@@ -457,97 +441,114 @@ class _ActionsRow extends StatelessWidget {
       isScrollControlled: true,
       context: context,
       builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            top: 16,
-            left: 16,
-            right: 16,
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'Comments',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF624E88),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection('forum_posts')
-                      .doc(postId)
-                      .collection('comments')
-                      .orderBy('timestamp', descending: true)
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-
-                    if (snapshot.hasError) {
-                      return const Center(
-                          child: Text('Error loading comments.'));
-                    }
-
-                    final comments = snapshot.data?.docs ?? [];
-
-                    return ListView.builder(
-                      itemCount: comments.length,
-                      itemBuilder: (context, index) {
-                        final comment =
-                            comments[index].data() as Map<String, dynamic>;
-
-                        return ListTile(
-                          leading: _AvatarImage(comment['userAvatar']),
-                          title: Text(
-                            comment['userName'] ?? 'Anonymous',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF624E88),
-                            ),
-                          ),
-                          subtitle: Text(
-                            comment['content'] ?? '',
-                            style: const TextStyle(color: Colors.black),
-                          ),
-                          trailing: Text(
-                              formatTimestamp(data['timestamp'] as Timestamp?)),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-              const Divider(),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: commentController,
-                      decoration: const InputDecoration(
-                        hintText: 'Add a comment...',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
+        final double screenHeight = MediaQuery.of(context).size.height;
+        return SizedBox(
+          height: screenHeight * 0.7, // Set the height to 70% of the screen
+          child: Padding(
+            padding: EdgeInsets.only(
+              top: 16,
+              left: 16,
+              right: 16,
+              bottom: MediaQuery.of(context).viewInsets.bottom +
+                  10, // Add extra padding
+            ),
+            child: Column(
+              children: [
+                const Text(
+                  'Comments',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF624E88),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.send, color: Color(0xFF624E88)),
-                    onPressed: () async {
-                      final String comment = commentController.text.trim();
-                      if (comment.isNotEmpty) {
-                        await _addComment(context, postId, comment);
-                        commentController.clear();
+                ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: StreamBuilder<QuerySnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('forum_posts')
+                        .doc(postId)
+                        .collection('comments')
+                        .orderBy('timestamp', descending: true)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
                       }
+
+                      if (snapshot.hasError) {
+                        return const Center(
+                            child: Text('Error loading comments.'));
+                      }
+
+                      final comments = snapshot.data?.docs ?? [];
+
+                      if (comments.isEmpty) {
+                        return const Center(
+                          child:
+                              Text('No comments yet. Be the first to comment!'),
+                        );
+                      }
+
+                      return ListView.builder(
+                        itemCount: comments.length,
+                        itemBuilder: (context, index) {
+                          final comment =
+                              comments[index].data() as Map<String, dynamic>;
+
+                          return ListTile(
+                            leading: _AvatarImage(comment['userAvatar']),
+                            title: Text(
+                              comment['userName'] ?? 'Anonymous',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF624E88),
+                              ),
+                            ),
+                            subtitle: Text(
+                              comment['content'] ?? '',
+                              style: const TextStyle(color: Colors.black),
+                            ),
+                            trailing: Text(
+                              formatTimestamp(
+                                  comment['timestamp'] as Timestamp?),
+                            ),
+                          );
+                        },
+                      );
                     },
                   ),
-                ],
-              ),
-            ],
+                ),
+                const Divider(),
+                Padding(
+                  padding: const EdgeInsets.only(
+                      bottom: 10.0), // Add margin below input
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: commentController,
+                          decoration: const InputDecoration(
+                            hintText: 'Add a comment...',
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.send, color: Color(0xFF624E88)),
+                        onPressed: () async {
+                          final String comment = commentController.text.trim();
+                          if (comment.isNotEmpty) {
+                            await _addComment(context, postId, comment);
+                            commentController.clear();
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },
