@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:juliemobiile/pages/calendar_page.dart';
 // import 'package:juliemobiile/component/navbar.dart';
 import 'package:juliemobiile/pages/caretakerHomepage.dart';
+import 'package:juliemobiile/pages/health_diary.dart';
 import 'package:juliemobiile/pages/settingPage.dart';
 
 import 'package:juliemobiile/pages/account.dart';
@@ -40,6 +42,9 @@ class MyApp extends StatelessWidget {
             '/caretakerHome': (context) => const CaretakerHomePage(user: null),
             '/account': (context) => const ProfilePage(),
             '/setting': (context) => const SettingsPage(),
+            '/calendar': (context) => const CalendarPage(),
+            '/healthdiary': (context) => const HealthDiary(),
+
             '/': (context) => const AuthenticationPage(), // Authentication Page
           },
         );
@@ -47,3 +52,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+

@@ -1,7 +1,7 @@
- import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:juliemobiile/pages/calendar_page.dart';
 import 'package:juliemobiile/pages/forum.dart';
+import 'package:juliemobiile/pages/health_diary.dart';
 import 'package:juliemobiile/pages/medication_page.dart';
 import 'package:juliemobiile/pages/task_page.dart';
 import '../component/navbar.dart';
@@ -24,7 +24,7 @@ class CaretakerHomePage extends StatelessWidget {
         ),
         MedicationPage(),
         TaskPage(),
-        CalendarPage(),
+        HealthDiary(),
         ForumPage(),
       ],
     );

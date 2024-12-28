@@ -67,7 +67,7 @@ class _GoogleBottomBarState extends State<GoogleBottomBar> {
             selectedColor: Colors.purple,
           ),
           SalomonBottomBarItem(
-            icon: Icon(Icons.medical_services),
+            icon: Icon(Icons.vaccines),
             title: Text("Medication"),
             selectedColor: Colors.pink,
           ),
@@ -77,8 +77,8 @@ class _GoogleBottomBarState extends State<GoogleBottomBar> {
             selectedColor: Colors.orange,
           ),
           SalomonBottomBarItem(
-            icon: Icon(Icons.calendar_today),
-            title: Text("Calendar"),
+            icon: Icon(Icons.medical_information),
+            title: Text("Health"),
             selectedColor: Colors.teal,
           ),
           SalomonBottomBarItem(

@@ -5,11 +5,18 @@ class CalendarPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        'Calendar Page',
-        style: TextStyle(fontSize: 24),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Calendar'),
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+      ),
+      body: Center(
+        child: Text(
+          'Calendar Page',
+          style: Theme.of(context).textTheme.titleLarge, // Use global theme
+        ),
       ),
     );
   }
 }
+

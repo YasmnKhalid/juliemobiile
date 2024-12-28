@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+
 class TaskPage extends StatefulWidget {
   const TaskPage({super.key});
 
@@ -32,6 +33,14 @@ class _TaskPage extends State<TaskPage> {
             fontWeight: FontWeight.bold,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.calendar_today),
+            onPressed: () {
+              Navigator.pushNamed(context, '/calendar');
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -246,7 +255,8 @@ class _TaskPage extends State<TaskPage> {
     );
   }
 
-  Widget _buildDetailsTab(BuildContext context, StateSetter setState) {
+  Widget _buildDetailsTab(
+      BuildContext context, StateSetter setState, TabController tabController) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -318,7 +328,7 @@ class _TaskPage extends State<TaskPage> {
           ElevatedButton(
             onPressed: () => setState(() {
               // Switch to the Date tab
-              selectedTabIndex = 1;
+              tabController.animateTo(1);
             }),
             style: ElevatedButton.styleFrom(
               backgroundColor: Color(0xFF624E88),
@@ -410,41 +420,48 @@ class _TaskPage extends State<TaskPage> {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return DefaultTabController(
-              length: 2, // Number of tabs
-              child: Container(
-                height: MediaQuery.of(context).size.height * 0.75, // 75% height
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(16),
-                    topRight: Radius.circular(16),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    // Tab Bar
-                    TabBar(
-                      onTap: (index) => setState(() {
-                        selectedTabIndex = index;
-                      }),
-                      indicatorColor: const Color(0xFF624E88),
-                      labelColor: const Color(0xFF624E88),
-                      unselectedLabelColor: Colors.grey,
-                      tabs: const [
-                        Tab(text: "Details"),
-                        Tab(text: "Date"),
-                      ],
-                    ),
-                    Expanded(
-                      child: TabBarView(
-                        children: [
-                          _buildDetailsTab(context, setState),
-                          _buildDateTab(context, currentUserId),
-                        ],
+              length: 2,
+              child: Builder(
+                builder: (BuildContext innerContext) {
+                  final TabController tabController =
+                      DefaultTabController.of(innerContext);
+
+                  return Container(
+                    height: MediaQuery.of(context).size.height * 0.75,
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(16),
+                        topRight: Radius.circular(16),
                       ),
                     ),
-                  ],
-                ),
+                    child: Column(
+                      children: [
+                        // Tab Bar
+                        TabBar(
+                          controller: tabController,
+                          indicatorColor: const Color(0xFF624E88),
+                          labelColor: const Color(0xFF624E88),
+                          unselectedLabelColor: Colors.grey,
+                          tabs: const [
+                            Tab(text: "Details"),
+                            Tab(text: "Date"),
+                          ],
+                        ),
+                        Expanded(
+                          child: TabBarView(
+                            controller: tabController,
+                            children: [
+                              _buildDetailsTab(
+                                  innerContext, setState, tabController),
+                              _buildDateTab(innerContext, currentUserId),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
             );
           },
