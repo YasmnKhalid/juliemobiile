@@ -29,26 +29,26 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _loadUserData() async {
-  final user = _auth.currentUser;
+    final user = _auth.currentUser;
 
-  if (user != null) {
-    final userData = await _firestore.collection('users').doc(user.uid).get();
+    if (user != null) {
+      final userData = await _firestore.collection('users').doc(user.uid).get();
 
-    if (userData.exists) {
-      print("Fetched data: ${userData.data()}"); // Debugging
-      setState(() {
-        displayName = userData['displayName'] ?? '';
-        email = userData['email'] ?? '';
-        phoneController.text = initialPhone = userData['phone'] ?? '';
-        addressController.text = initialAddress = userData['address'] ?? '';
-      });
+      if (userData.exists) {
+        print("Fetched data: ${userData.data()}"); // Debugging
+        setState(() {
+          displayName = userData['displayName'] ?? '';
+          email = userData['email'] ?? '';
+          phoneController.text = initialPhone = userData['phone'] ?? '';
+          addressController.text = initialAddress = userData['address'] ?? '';
+        });
+      } else {
+        print("No document found for UID: ${user.uid}");
+      }
     } else {
-      print("No document found for UID: ${user.uid}");
+      print("No user is signed in.");
     }
-  } else {
-    print("No user is signed in.");
   }
-}
 
   Future<void> _updateUserData() async {
     final user = _auth.currentUser;
@@ -78,9 +78,8 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void _navigateToHomePage(BuildContext context) {
-    Navigator.pushReplacementNamed(context, '/caretakerHome'); 
+    Navigator.pushReplacementNamed(context, '/caretakerHome');
   }
-   
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +92,8 @@ class _ProfilePageState extends State<ProfilePage> {
             context: context,
             builder: (context) => AlertDialog(
               title: const Text("Unsaved Changes"),
-              content: const Text("You have unsaved changes. Do you want to discard them?"),
+              content: const Text(
+                  "You have unsaved changes. Do you want to discard them?"),
               actions: <Widget>[
                 TextButton(
                   child: const Text("No"),
@@ -120,7 +120,7 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Profile'),
-          backgroundColor: Colors.teal,
+          backgroundColor: Colors.transparent,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () async {
@@ -167,24 +167,38 @@ class _ProfilePageState extends State<ProfilePage> {
               Stack(
                 alignment: Alignment.bottomRight,
                 children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundImage: profilePicUrl.isNotEmpty
-                        ? NetworkImage(profilePicUrl)
-                        : null,
-                    backgroundColor: Colors.grey.shade200,
-                    child: profilePicUrl.isEmpty
-                        ? const Icon(Icons.person, size: 50, color: Colors.grey)
-                        : null,
+                  Container(
+                    width: 100, // Diameter of the CircleAvatar
+                    height: 100, // Diameter of the CircleAvatar
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: const Color(
+                            0xFF624E88), // Border color (purple theme)
+                        width: 3.0, // Border thickness
+                      ),
+                    ),
+                    child: CircleAvatar(
+                      radius: 50,
+                      backgroundImage: profilePicUrl.isNotEmpty
+                          ? NetworkImage(profilePicUrl)
+                          : const NetworkImage('https://picsum.photos/200'),
+                      backgroundColor: Colors.grey.shade200,
+                      child: profilePicUrl.isEmpty
+                          ? null
+                          : null, // Remove the icon if using random image
+                    ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.camera_alt, color: Colors.teal),
+                    icon:
+                        const Icon(Icons.camera_alt, color: Color(0xFF624E88)),
                     onPressed: () {
                       // Implement profile picture upload
                     },
                   ),
                 ],
               ),
+
               const SizedBox(height: 20),
 
               // Non-editable display name
@@ -232,7 +246,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 onPressed: _updateUserData,
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size.fromHeight(50),
-                  iconColor: Colors.teal,
+                  iconColor: Color(0xFF624E88),
                 ),
                 child: const Text('Save Changes'),
               ),

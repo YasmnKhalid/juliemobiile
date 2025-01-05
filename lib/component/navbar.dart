@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:juliemobiile/component/text_logo.dart';
 // import 'package:juliemobiile/pages/account.dart';
 // import 'package:juliemobiile/pages/caretakerHomepage.dart';
 // import 'package:juliemobiile/pages/settingPage.dart';
@@ -36,10 +37,13 @@ class _GoogleBottomBarState extends State<GoogleBottomBar> {
             );
           },
         ),
-        title: const Text(
-          "Caretaker",
-          style: TextStyle(color: Colors.purple, fontWeight: FontWeight.bold),
-        ),
+        title:    const TextLogo(
+                  text: 'Julie',
+                  fontSize: 30.0,
+                  color: Colors.white,
+                  borderColor: Color(0xFF624E88),
+                  borderWidth: 3.0,
+                ),
         actions: [
           IconButton(
             icon: const Icon(Icons.videocam),
