@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:juliemobiile/component/text_logo.dart';
-// import 'package:juliemobiile/pages/account.dart';
-// import 'package:juliemobiile/pages/caretakerHomepage.dart';
-// import 'package:juliemobiile/pages/settingPage.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -18,8 +15,6 @@ class GoogleBottomBar extends StatefulWidget {
 
 class _GoogleBottomBarState extends State<GoogleBottomBar> {
   int _selectedIndex = 0;
-
-  
 
   @override
   Widget build(BuildContext context) {

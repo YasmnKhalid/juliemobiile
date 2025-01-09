@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:juliemobiile/pages/Vital.dart';
 import 'package:juliemobiile/pages/forum.dart';
 import 'package:juliemobiile/pages/health_diary.dart';
 import 'package:juliemobiile/pages/medication_page.dart';
@@ -148,13 +149,58 @@ class CaretakerHomePage extends StatelessWidget {
                                 const SizedBox(height: 8),
                                 ElevatedButton.icon(
                                   onPressed: () {
-                                    // Handle Emergency
+                                    showModalBottomSheet(
+                                      context: context,
+                                      isScrollControlled:
+                                          true, // Allows full-screen height for the bottom sheet
+                                      shape: const RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.vertical(
+                                            top: Radius.circular(16)),
+                                      ),
+                                      builder: (BuildContext context) {
+                                        return Padding(
+                                          padding: EdgeInsets.only(
+                                            left: 16,
+                                            right: 16,
+                                            top: 16,
+                                            bottom: MediaQuery.of(context)
+                                                    .viewInsets
+                                                    .bottom +
+                                                16,
+                                          ),
+                                          child: SingleChildScrollView(
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                const Text(
+                                                  'Record Vital Signs',
+                                                  style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 16),
+                                                VitalSignsForm(), // Your reusable form widget
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    );
                                   },
-                                  icon: const Icon(Icons.warning,
+                                  icon: const Icon(Icons.edit_note,
                                       color: Colors.white),
-                                  label: const Text('Emergency'),
+                                  label: const Text(
+                                    'Vital Entry',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red,
+                                    backgroundColor: const Color(0xFF624E88),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(8),
                                     ),
@@ -166,98 +212,107 @@ class CaretakerHomePage extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
 // Upcoming Tasks Section
-                       StreamBuilder<QuerySnapshot>(
-  stream: FirebaseFirestore.instance
-      .collection('tasks')
-      .where('createdBy', isEqualTo: caretakerId) // Adjust the field here
-      .where('isCompleted', isEqualTo: false)
-      .snapshots(),
-  builder: (context, taskSnapshot) {
-    if (taskSnapshot.connectionState == ConnectionState.waiting) {
-      return const Center(child: CircularProgressIndicator());
-    }
+                        StreamBuilder<QuerySnapshot>(
+                          stream: FirebaseFirestore.instance
+                              .collection('tasks')
+                              .where('createdBy',
+                                  isEqualTo:
+                                      caretakerId) // Adjust the field here
+                              .where('isCompleted', isEqualTo: false)
+                              .snapshots(),
+                          builder: (context, taskSnapshot) {
+                            if (taskSnapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Center(
+                                  child: CircularProgressIndicator());
+                            }
 
-    if (!taskSnapshot.hasData || taskSnapshot.data!.docs.isEmpty) {
-      return Column(
-        children: [
-          const SizedBox(height: 8),
-          const Text(
-            'Upcoming Tasks',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-              color: Color(0xFF624E88),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Icon(
-            Icons.task_alt,
-            size: 48,
-            color: Colors.grey[400],
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'No upcoming tasks',
-            style: TextStyle(
-              color: Colors.grey,
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      );
-    }
+                            if (!taskSnapshot.hasData ||
+                                taskSnapshot.data!.docs.isEmpty) {
+                              return Column(
+                                children: [
+                                  const SizedBox(height: 8),
+                                  const Text(
+                                    'Upcoming Tasks',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                      color: Color(0xFF624E88),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Icon(
+                                    Icons.task_alt,
+                                    size: 48,
+                                    color: Colors.grey[400],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  const Text(
+                                    'No upcoming tasks',
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }
 
-    final tasks = taskSnapshot.data!.docs;
+                            final tasks = taskSnapshot.data!.docs;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start, // Align label and cards
-      children: [
-        const SizedBox(height: 8),
-        const Text(
-          'Upcoming Tasks',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-            color: Color(0xFF624E88),
-          ),
-        ),
-        const SizedBox(height: 16),
-        ...tasks.map((task) {
-          final taskData = task.data() as Map<String, dynamic>;
-          return Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            elevation: 4,
-            child: ListTile(
-              title: Text(taskData['title'] ?? 'No Title'),
-              subtitle: Text(
-                  'Due Date: ${taskData['dueDate'] ?? 'Unknown Date'}'),
-              trailing: const Icon(Icons.check_circle_outline,
-                  color: Colors.grey),
-              onTap: () {
-                // Navigate to task details or page
-              },
-            ),
-          );
-        }),
-      ],
-    );
-  },
-),
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment
+                                  .start, // Align label and cards
+                              children: [
+                                const SizedBox(height: 8),
+                                const Text(
+                                  'Upcoming Tasks',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                    color: Color(0xFF624E88),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                ...tasks.map((task) {
+                                  final taskData =
+                                      task.data() as Map<String, dynamic>;
+                                  return Card(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    elevation: 4,
+                                    child: ListTile(
+                                      title:
+                                          Text(taskData['title'] ?? 'No Title'),
+                                      subtitle: Text(
+                                          'Due Date: ${taskData['dueDate'] ?? 'Unknown Date'}'),
+                                      trailing: const Icon(
+                                          Icons.check_circle_outline,
+                                          color: Colors.grey),
+                                      onTap: () {
+                                        // Navigate to task details or page
+                                      },
+                                    ),
+                                  );
+                                }),
+                              ],
+                            );
+                          },
+                        ),
 
                         const SizedBox(height: 16),
 // Upcoming Medications Section
-                        // const Text(
-                        //   'Upcoming Medications',
-                        //   style: TextStyle(
-                        //     fontWeight: FontWeight.bold,
-                        //     fontSize: 18,
-                        //     color: Color(0xFF624E88),
-                        //   ),
-                        // ),
-                        // const SizedBox(height: 8),
+                        const Text(
+                          'Upcoming Medications',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: Color(0xFF624E88),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
                         // medications.isEmpty
                         //     ? Column(
                         //         children: [

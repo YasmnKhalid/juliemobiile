@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:juliemobiile/services/globalVariable.dart';
 
+/// Use nullable type to handle initialization
 
 class TaskPage extends StatefulWidget {
   const TaskPage({super.key});
@@ -47,35 +49,67 @@ class _TaskPage extends State<TaskPage> {
           _buildWeekView(),
           const Divider(),
           Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('tasks')
-                  .where('date',
-                      isEqualTo: _selectedDate.toString().substring(0, 10))
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+            child: Builder(
+              builder: (context) {
+                
+                return FutureBuilder<String>(
+                  future: globalRole != null && globalRole != 'unknown'
+                      ? getAssignedPatientId(globalRole!, currentUserId)
+                      : Future.error(
+                          'Global role is not initialized or invalid.'),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
 
-                if (snapshot.hasError) {
-                  return const Center(child: Text('Error loading tasks.'));
-                }
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                            'Error fetching careRecipientId: ${snapshot.error}'),
+                      );
+                    }
 
-                final tasks = snapshot.data?.docs ?? [];
-                final uncompletedTasks = tasks
-                    .where((task) => !(task['isCompleted'] ?? false))
-                    .toList();
-                final completedTasks = tasks
-                    .where((task) => task['isCompleted'] ?? false)
-                    .toList();
+                    final careRecipientId = snapshot.data;
 
-                return ListView(
-                  children: [
-                    ...uncompletedTasks
-                        .map((task) => _buildTaskItem(task, false)),
-                    ...completedTasks.map((task) => _buildTaskItem(task, true)),
-                  ],
+                    return StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection('tasks')
+                          .where('assignedFor', isEqualTo: careRecipientId)
+                          .where('date',
+                              isEqualTo:
+                                  _selectedDate.toString().substring(0, 10))
+                          .snapshots(),
+                      builder: (context, taskSnapshot) {
+                        if (taskSnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
+
+                        if (taskSnapshot.hasError) {
+                          return const Center(
+                              child: Text('Error loading tasks.'));
+                        }
+
+                        final tasks = taskSnapshot.data?.docs ?? [];
+                        final uncompletedTasks = tasks
+                            .where((task) => !(task['isCompleted'] ?? false))
+                            .toList();
+                        final completedTasks = tasks
+                            .where((task) => task['isCompleted'] ?? false)
+                            .toList();
+
+                        return ListView(
+                          children: [
+                            ...uncompletedTasks
+                                .map((task) => _buildTaskItem(task, false)),
+                            ...completedTasks
+                                .map((task) => _buildTaskItem(task, true)),
+                          ],
+                        );
+                      },
+                    );
+                  },
                 );
               },
             ),
@@ -374,14 +408,25 @@ class _TaskPage extends State<TaskPage> {
             }
 
             try {
+              // Determine role of currentUserId (e.g., from your Firestore user collection or state)
+              String role = await determineUserRole(currentUserId);
+
+              // Prepare the assignedFor field (this could come from the UI or logic)
+              String assignedFor =
+                  await getAssignedPatientId(role, currentUserId);
+
+              // Add task to Firestore
               await FirebaseFirestore.instance.collection('tasks').add({
                 'title': title,
                 'description': description,
                 'priority': _selectedPriority,
                 'isCompleted': false,
                 'date': _selectedDate.toString().substring(0, 10),
-                'assignedBy': 'Caretaker', // Or 'Guardian'
+                'assignedBy':
+                    role, // Dynamically assign 'Caretaker' or 'Guardian'
                 'createdBy': currentUserId,
+                'assignedFor':
+                    assignedFor, // PatientId associated with the caretaker or guardian
               });
 
               ScaffoldMessenger.of(context).showSnackBar(
@@ -407,6 +452,64 @@ class _TaskPage extends State<TaskPage> {
       ],
     );
   }
+
+  Future<String> getAssignedPatientId(String role, String userId) async {
+    try {
+      if (role == 'caretaker') {
+        var caretakerDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userId)
+            .get();
+
+        if (caretakerDoc.exists) {
+          return caretakerDoc.data()?['careRecipientId'] ??
+              'No assigned patient';
+        } else {
+          throw Exception('Caretaker document does not exist!');
+        }
+      } else if (role == 'guardian') {
+        var guardianDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userId)
+            .get();
+
+        if (guardianDoc.exists) {
+          return guardianDoc.data()?['careRecipientId'] ??
+              'No assigned patient';
+        } else {
+          throw Exception('Guardian document does not exist!');
+        }
+      } else {
+        throw Exception('Invalid or unknown role provided: $role');
+      }
+    } catch (e) {
+      print('Error in getAssignedPatientId: $e');
+      rethrow;
+    }
+  }
+
+  // Future<String> getCareRecipientId() async {
+  //   try {
+  //     String currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
+
+  //     // Fetch the user document from the Firestore 'users' collection
+  //     var userDoc = await FirebaseFirestore.instance
+  //         .collection('users')
+  //         .doc(currentUserId)
+  //         .get();
+
+  //     if (userDoc.exists) {
+  //       // Return the careRecipientId field from the document
+  //       return userDoc.data()?['careRecipientId'] ??
+  //           ''; // Default to an empty string if the field is null
+  //     } else {
+  //       throw Exception('User document does not exist!');
+  //     }
+  //   } catch (error) {
+  //     print('Error fetching careRecipientId: $error');
+  //     throw Exception('Failed to fetch careRecipientId');
+  //   }
+  // }
 
   Future<void> _showCreateTaskDialog(
       BuildContext context, String currentUserId) async {
