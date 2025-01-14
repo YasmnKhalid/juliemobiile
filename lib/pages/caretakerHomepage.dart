@@ -138,6 +138,7 @@ class CaretakerHomePage extends StatelessWidget {
                                 Text(
                                   'Patient Name: $patientName',
                                   style: const TextStyle(
+                                    color: Color(0xFF624E88),
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
                                   ),
@@ -179,6 +180,7 @@ class CaretakerHomePage extends StatelessWidget {
                                                   style: TextStyle(
                                                     fontSize: 18,
                                                     fontWeight: FontWeight.bold,
+                                                     color:Color(0xFF624E88)
                                                   ),
                                                 ),
                                                 const SizedBox(height: 16),

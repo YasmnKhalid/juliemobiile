@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:juliemobiile/utils/MedicationHelper.dart';
 
 class MedicationPage extends StatefulWidget {
   const MedicationPage({super.key});
@@ -121,7 +122,7 @@ class _MedicationPageState extends State<MedicationPage> {
       children: [
         if (_showFABs) ...[
           _buildActionButton(Icons.add, 'Add Medication', Colors.pink, () {
-            // Handle Add Medication
+            MedicationHelper().addMedication(context);// Handle Add Medication
           }),
           const SizedBox(height: 8),
           _buildActionButton(Icons.add_task, 'Add Tracker Entry', Colors.blue, () {

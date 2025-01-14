@@ -24,6 +24,21 @@ class _TaskPage extends State<TaskPage> {
   Widget build(BuildContext context) {
     final String currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
 
+    if (globalRole == null) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      ); // Wait until globalRole is initialized
+    }
+
+    if (globalRole == 'unknown') {
+      return const Center(
+        child: Text(
+          'Error: User role is not defined or invalid.',
+          style: TextStyle(color: Colors.red),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -36,12 +51,12 @@ class _TaskPage extends State<TaskPage> {
           ),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.calendar_today),
-            onPressed: () {
-              Navigator.pushNamed(context, '/calendar');
-            },
-          ),
+          // IconButton(
+          //   icon: const Icon(Icons.calendar_today),
+          //   onPressed: () {
+          //     Navigator.pushNamed(context, '/calendar');
+          //   },
+          // ),
         ],
       ),
       body: Column(
@@ -51,7 +66,6 @@ class _TaskPage extends State<TaskPage> {
           Expanded(
             child: Builder(
               builder: (context) {
-                
                 return FutureBuilder<String>(
                   future: globalRole != null && globalRole != 'unknown'
                       ? getAssignedPatientId(globalRole!, currentUserId)
@@ -455,35 +469,25 @@ class _TaskPage extends State<TaskPage> {
 
   Future<String> getAssignedPatientId(String role, String userId) async {
     try {
-      if (role == 'caretaker') {
-        var caretakerDoc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(userId)
-            .get();
+      // Fetch user document based on role
+      var userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
 
-        if (caretakerDoc.exists) {
-          return caretakerDoc.data()?['careRecipientId'] ??
-              'No assigned patient';
-        } else {
-          throw Exception('Caretaker document does not exist!');
-        }
-      } else if (role == 'guardian') {
-        var guardianDoc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(userId)
-            .get();
+      if (userDoc.exists) {
+        String? careRecipientId = userDoc.data()?['careRecipientId'];
 
-        if (guardianDoc.exists) {
-          return guardianDoc.data()?['careRecipientId'] ??
-              'No assigned patient';
+        if (careRecipientId != null && careRecipientId.isNotEmpty) {
+          return careRecipientId;
         } else {
-          throw Exception('Guardian document does not exist!');
+          throw Exception('No careRecipientId found for this user.');
         }
       } else {
-        throw Exception('Invalid or unknown role provided: $role');
+        throw Exception('User document does not exist.');
       }
     } catch (e) {
-      print('Error in getAssignedPatientId: $e');
+      print('Error fetching careRecipientId: $e');
       rethrow;
     }
   }
