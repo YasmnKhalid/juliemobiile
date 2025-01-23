@@ -5,6 +5,7 @@ import 'package:juliemobiile/pages/calendar_page.dart';
 // import 'package:juliemobiile/component/navbar.dart';
 import 'package:juliemobiile/pages/caretakerHomepage.dart';
 import 'package:juliemobiile/pages/dependentProfile.dart';
+import 'package:juliemobiile/pages/google_meet_calendar.dart';
 import 'package:juliemobiile/pages/health_diary.dart';
 import 'package:juliemobiile/pages/settingPage.dart';
 import 'package:juliemobiile/pages/account.dart';
@@ -61,6 +62,7 @@ class MyApp extends StatelessWidget {
             '/calendar': (context) => const CalendarPage(),
             '/healthdiary': (context) => const HealthDiary(),
             '/dependent': (context) => DependentProfilePage(),
+            '/videoConference':(context)=>GoogleMeetCalendarPage(),
 
             '/': (context) => const AuthenticationPage(), // Authentication Page
           },

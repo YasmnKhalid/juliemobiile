@@ -6,6 +6,8 @@ import 'package:juliemobiile/pages/forum.dart';
 import 'package:juliemobiile/pages/health_diary.dart';
 import 'package:juliemobiile/pages/medication_page.dart';
 import 'package:juliemobiile/pages/task_page.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+
 
 class GuardianHomePage extends StatelessWidget {
   final User? user;
@@ -62,42 +64,41 @@ class BloodPressureDashboard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Weekly Blood Pressure Trends',
+              'Care Recipient: Juliah',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
             Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: Colors.lightBlue[50],
-                ),
-                child: Center(
-                  child: const Text(
-                    'Graph Placeholder',
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Weekly Readings',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            Expanded(
-              child: ListView(
-                children: List.generate(7, (index) {
-                  return Card(
-                    child: ListTile(
-                      leading: const Icon(Icons.favorite, color: Colors.red),
-                      title: Text(
-                          'Day ${index + 1}: Systolic: 120, Diastolic: 80'),
-                      subtitle: Text('Pulse: 72 bpm'),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Sertralin 50mg',
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
-                  );
-                }),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: List.generate(7, (index) {
+                        return Icon(
+                          Icons.check_circle,
+                          color: index == 6 ? Colors.orange : Colors.green,
+                        );
+                      }),
+                    ),
+                    const SizedBox(height: 20),
+                    _buildGraphCard(
+                        'Weight', [80.5, 80.4, 80.3, 80.2, 80.5, 80.6, 80.5]),
+                    const SizedBox(height: 20),
+                    _buildGraphCard(
+                        'Blood Pressure', [108, 110, 112, 107, 108, 109, 108],
+                        diastolic: [75, 76, 74, 73, 75, 74, 75]),
+                    const SizedBox(height: 20),
+                    _buildGraphCard('Fatigue', [5, 7, 3, 6, 4, 8, 5]),
+                  ],
+                ),
               ),
             ),
           ],
@@ -105,4 +106,58 @@ class BloodPressureDashboard extends StatelessWidget {
       ),
     );
   }
+
+ Widget _buildGraphCard(String title, List<double> data, {List<double>? diastolic}) {
+  return Container(
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(10),
+      color: Colors.lightBlue[50],
+    ),
+    padding: const EdgeInsets.all(16.0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 10),
+        SizedBox(
+          height: 200,
+          child: SfCartesianChart(
+            primaryXAxis: NumericAxis(
+              title: AxisTitle(text: 'Index'),
+              edgeLabelPlacement: EdgeLabelPlacement.shift,
+            ),
+            primaryYAxis: NumericAxis(
+              title: AxisTitle(text: 'Value'),
+              labelFormat: '{value}',
+            ),
+            tooltipBehavior: TooltipBehavior(enable: true),
+            series: <LineSeries<double, int>>[
+              LineSeries<double, int>(
+                dataSource: List.generate(data.length, (index) => index.toDouble()),
+                xValueMapper: (index, _) => index.toInt(),
+                yValueMapper: (index, _) => data[index.toInt()],
+                name: title,
+                color: Colors.blue,
+                dataLabelSettings: const DataLabelSettings(isVisible: true),
+              ),
+              if (diastolic != null)
+                LineSeries<double, int>(
+                  dataSource: List.generate(diastolic.length, (index) => index.toDouble()),
+                  xValueMapper: (index, _) => index.toInt(),
+                  yValueMapper: (index, _) => diastolic[index.toInt()],
+                  name: '$title (Diastolic)',
+                  color: Colors.red,
+                  dataLabelSettings: const DataLabelSettings(isVisible: true),
+                ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
 }

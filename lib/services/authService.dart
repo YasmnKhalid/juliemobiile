@@ -9,35 +9,54 @@ import '../pages/addDependentOnboarding.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<void> signInWithGoogle(BuildContext context) async {
-    try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) {
-        // User cancelled the sign-in
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Google Sign-In cancelled')),
-        );
-        return;
-      }
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-      await _auth.signInWithCredential(credential);
 
-      // Navigate based on user role (Guardian or Caretaker)
-      _navigateUser(context);
-    } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Google Sign-In failed: $error')),
-      );
+Future<void> signInWithGoogle(BuildContext context) async {
+  try {
+    final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+    if (googleUser == null) {
+      // The user canceled the Google Sign-In process.
+      return;
     }
+
+    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+    final AuthCredential credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    UserCredential userCredential = await _auth.signInWithCredential(credential);
+
+    // Get the signed-in user.
+    User? user = userCredential.user;
+
+    // Check if the user is already in Firestore, or add their details.
+    if (user != null) {
+      final userDoc = _firestore.collection('users').doc(user.uid);
+      final docSnapshot = await userDoc.get();
+
+      if (!docSnapshot.exists) {
+        // Add user to Firestore if not present.
+        await userDoc.set({
+          'email': user.email,
+          'name': user.displayName,
+          'role': 'guardian', // Default role
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      }
+
+      // Navigate the user based on their role.
+      _navigateUser(context);
+    }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Google Sign-In failed: $e')),
+    );
   }
+}
+
 
   Future<void> signInWithEmailAndPassword(
       BuildContext context, String email, String password) async {

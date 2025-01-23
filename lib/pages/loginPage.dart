@@ -31,15 +31,13 @@ class AuthenticationPage extends StatefulWidget {
 }
 
 class _AuthenticationPageState extends State<AuthenticationPage> {
-  final AuthService _authService = AuthService(); // Use the AuthService
+  final AuthService _authService = AuthService();
 
-  // Controllers for the registration fields
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isPasswordVisible = false;
-  final TextEditingController _nameController = TextEditingController();
- 
 
   Future<void> _loginWithEmailAndPassword() async {
     if (!_formKey.currentState!.validate()) return;
@@ -47,19 +45,6 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
       context,
       _emailController.text,
       _passwordController.text,
-    );
-  }
-
-  Future<void> _registerWithEmailAndPassword() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    String role = 'guardian'; // only guardian akan register sendiri
-    await _authService.registerWithEmailAndPassword(
-      context,
-      _emailController.text,
-      _passwordController.text,
-      role,
-      _nameController.text.trim(),
     );
   }
 
@@ -86,10 +71,10 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                 const SizedBox(height: 16),
                 const TextLogo(
                   text: 'Julie',
-                  fontSize: 80.0, // Matches lock icon size
-                  color: Colors.white, // White text color
-                  borderColor: Color(0xFF624E88), // Purple border
-                  borderWidth: 3.0, // Thinner border
+                  fontSize: 80.0,
+                  color: Colors.white,
+                  borderColor: Color(0xFF624E88),
+                  borderWidth: 3.0,
                 ),
                 const SizedBox(height: 32),
                 TextFormField(
@@ -99,7 +84,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                       return 'Please enter your email';
                     }
                     bool emailValid = RegExp(
-                            r"^[a-zA-Z0-9.a-zA-Z0-9.!#\$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                            r"^[a-zA-Z0-9.a-zA-Z0-9.!#\$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+$")
                         .hasMatch(value);
                     if (!emailValid) {
                       return 'Please enter a valid email';
@@ -134,8 +119,8 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                     suffixIcon: IconButton(
                       icon: Icon(
                         _isPasswordVisible
-                            ? Icons.visibility_off
-                            : Icons.visibility,
+                            ? Icons.visibility
+                            : Icons.visibility_off,
                       ),
                       onPressed: () {
                         setState(() {
@@ -167,63 +152,48 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    GestureDetector(
-                      onTap: _googleSignInMethod,
-                      child: SizedBox(
-                        width: 140,
-                        height: 50,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            side: const BorderSide(color: Colors.grey),
-                            backgroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                          ),
-                          onPressed: _googleSignInMethod,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.asset(
-                                'assets/google_logo.png',
-                                height: 24,
-                              ),
-                              const SizedBox(width: 8),
-                              const Text('Google',
-                                  style: TextStyle(color: Colors.black)),
-                            ],
-                          ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        side: const BorderSide(color: Colors.grey),
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
                         ),
+                      ),
+                      onPressed: _googleSignInMethod,
+                      child: Row(
+                        children: [
+                          Image.asset(
+                            'assets/google_logo.png',
+                            height: 24,
+                          ),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Google',
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(width: 16),
-                    GestureDetector(
-                      onTap: _otpSignIn,
-                      child: SizedBox(
-                        width: 140,
-                        height: 50,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            side: const BorderSide(color: Colors.grey),
-                            backgroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                          ),
-                          onPressed: _otpSignIn,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                Icons.sms,
-                                color: Colors.black,
-                              ),
-                              const SizedBox(width: 8),
-                              const Text('OTP',
-                                  style: TextStyle(color: Colors.black)),
-                            ],
-                          ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        side: const BorderSide(color: Colors.grey),
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
                         ),
+                      ),
+                      onPressed: _otpSignIn,
+                      child: Row(
+                        children: [
+                          const Icon(Icons.sms, color: Colors.black),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'OTP',
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -235,12 +205,10 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                     const Text('Not a member?'),
                     TextButton(
                       onPressed: () {
-                        // Navigate to the RegisterPage
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                               RegisterPage(), // Replace with your RegisterPage class
+                            builder: (context) => const RegisterPage(),
                           ),
                         );
                       },
